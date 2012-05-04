@@ -9,6 +9,8 @@ describe Redis::Lock, redis: true do
   let(:her_same)   { Redis::Lock.new( redis, "alpha", owner: her ) }
   let(:his)        { Redis::Lock.new( redis, "alpha", owner: him ) }
   let(:his_other)  { Redis::Lock.new( redis, "beta",  owner: him ) }
+  let(:name1)      { Redis::Lock.new( redis, "name", namespace: "1" )}
+  let(:name2)      { Redis::Lock.new( redis, "name", namespace: "2" )}
   let(:past   ) { 1 }
   let(:present) { 2 }
   let(:future ) { 3 }
@@ -31,6 +33,13 @@ describe Redis::Lock, redis: true do
     his.lock do
       expect { his_other.lock.unlock }.to_not raise_exception
       his.should be_locked
+    end
+  end
+
+  it "can lock the same key in two different namespaces at the same time" do
+    name1.lock do
+      expect { name2.lock.unlock }.to_not raise_exception
+      name1.should be_locked
     end
   end
 

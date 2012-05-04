@@ -22,12 +22,13 @@ class Redis
     # @param options[:life] may be set, but defaults to 1 minute
     # @param options[:owner] may be set, but defaults to HOSTNAME:PID
     def initialize( redis, key, options = {} )
-      check_keys( options, :owner, :life )
+      check_keys( options, :owner, :life, :namespace )
+      namespace = "#{options[:namespace]}:" if options[:namespace]
       @redis  = redis
       @key    = key
-      @okey   = "lock:owner:#{key}"
+      @okey   = "#{namespace}lock:owner:#{key}"
       @oval   = options[:owner] || "#{`hostname`.strip}:#{Process.pid}"
-      @xkey   = "lock:expire:#{key}"
+      @xkey   = "#{namespace}lock:expire:#{key}"
       @life   = options[:life] || 60
     end
 
